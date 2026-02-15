@@ -1,11 +1,20 @@
+import { AppShell } from './ui/layout/AppShell';
+
 function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg-primary)]">
-      <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">
-        Pain Calendar App
-      </h1>
-    </div>
-  )
+    <AppShell>
+      <header className="mb-8 mt-4">
+        <h1 className="text-3xl font-bold tracking-tight text-primary">Pain Calendar</h1>
+        <p className="text-muted-foreground mt-2">Registra tu dolor.</p>
+      </header>
+
+      <section className="p-6 rounded-2xl bg-card border border-border shadow-sm">
+        <p className="text-card-foreground">
+          Bienvenido. Aquí irán tus registros.
+        </p>
+      </section>
+    </AppShell>
+  );
 }
 
-export default App
+export default App;
