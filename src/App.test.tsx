@@ -5,6 +5,6 @@ import App from './App'
 describe('App', () => {
     it('renders the app title', () => {
         render(<App />)
-        expect(screen.getByText(/Pain Calendar App/i)).toBeInTheDocument()
+        expect(screen.getByText(/Pain Calendar/i)).toBeInTheDocument()
     })
 })

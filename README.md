@@ -1,75 +1,80 @@
-# React + TypeScript + Vite
+# Pain Calendar - Frontend 🩻
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicación Frontend de registro de dolor construida con **React 19**, **Vite 6**, **TypeScript 5.8** y **Tailwind CSS 4**.
 
-Currently, two official plugins are available:
+Este proyecto no es solo una interfaz bonita, sino un experimento y demostración rigurosa de buenas prácticas de Ingeniería de Software aplicada al Frontend, diseñado desde cero (Mobile-First y preparado para PWA) aplicando **Test-Driven Development (TDD)** y **Arquitectura Hexagonal (Ports & Adapters)**.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 🏗️ Arquitectura: ¿Por qué Hexagonal en el Frontend?
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+A diferencia de la mayoría de proyectos modernos en React que mezclan llamadas a API (`fetch`/`axios`), lógica de negocio y renderizado UI en los mismos componentes o hooks, aquí hemos optado por la separación extrema de responsabilidades (Clean Architecture).
 
-Note: This will impact Vite dev & build performances.
+### Capas de la Aplicación
 
-## Expanding the ESLint configuration
+1. **Domain (Dominio / Reglas de Negocio):**
+   - No sabe nada de React, nada de CSS y nada de Internet. 
+   - Contiene los tipos (`PainRecord`, `PainIntensity`) y funciones puras para construirlos o validarlos.
+   - Si la regla de negocio dicta que el dolor debe estar entre 0 y 10, esa regla vive aquí, y se testea aquí de forma aislada.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+2. **Application (Casos de Uso):**
+   - Orquesta el flujo de la aplicación (ej: `CreatePainRecordService`).
+   - Sabe qué hay que hacer, pero no los detalles técnicos de cómo hacerlo.
+   - Se comunica con el mundo exterior mediante **Puertos** (Interfaces TypeScript, ej: `PainRecordRepository`).
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+3. **Infrastructure / UI (Adaptadores):**
+   - **UI**: Los componentes de React (como `PainSlider`) que recogen la intención del usuario.
+   - **Adaptadores de Persistencia/Red**: Las implementaciones reales que hacen el *fetch* al backend de Spring Boot implementando el puerto definido en la capa de aplicación.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 💉 Inyección de Dependencias Sin Clases
+
+Venimos de ecosistemas como Java (Spring) donde la inyección de dependencias (`@Autowired`) y las Clases son el pan de cada día. Sin embargo, en JavaScript/TypeScript y el paradigma funcional de React, las clases tradicionales traen problemas (manejo oscuro de `this`, mayor bundle, etc.).
+
+**¿Cómo inyectamos entonces un Repositorio en un Servicio?** -> Usando *Factory Functions* (Funciones Puras) y *Closures*.
+
+### Ejemplo: El Patrón Factory Function
+
+En lugar de crear una clase `class CreateService { constructor(repo) { ... } }`, usamos una función que recibe la dependencia por parámetro y devuelve el caso de uso:
+
+```typescript
+// El Puerto (Contrato)
+export type PainRecordRepository = {
+    save: (record: PainRecord) => Promise<void>;
+};
+
+// La Factoría (Application Service)
+export const createPainRecordService = (repository: PainRecordRepository) => {
+    // Retornamos la API pública de nuestro servicio.
+    // El closure de JavaScript "recuerda" la variable 'repository' sin necesidad de usar 'this'.
+    return {
+        execute: async (request: RequestDto) => {
+            const record = createPainRecord(request); // Llamada al Dominio puro
+            await repository.save(record);            // Delegación al Puerto de infraestructura
+            return record;
+        }
+    };
+};
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Esto hace que nuestro código sea **100% testeable** de forma independiente. Simplemente le pasamos un *Mock* del repositorio en nuestro archivo `.test.ts` y verificamos que hizo lo correcto de forma síncrona, rápida y sin depender de React.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 🔴🟢 TDD (Test-Driven Development)
+
+Todas las funciones de dominio, servicios de aplicación y componentes de UI visualmente lógicos (como el `PainSlider`) han estado guiados por pruebas usando **Vitest** y **React Testing Library**.
+
+### Flujo seguido:
+1. **Red**: Escribimos `archivo.test.ts` definiendo la intención de uso (qué debe aparecer en pantalla, cómo debe fallar un valor de dominio inválido, o cómo el servicio interactúa con el puerto).
+2. **Green**: Escribimos el código mínimo en TypeScript/React para hacer pasar la prueba.
+3. **Refactor**: Aplicamos mejoras, sacamos lógicas comunes o refinamos el CSS (Tailwind) sin miedo a romper nada, porque los tests nos respaldan en verde.
+
+### Co-Location
+Los archivos de test no están escondidos en una carpeta `/tests` global. Se ubican justo al lado del archivo al que protegen (ej. `PainSlider.tsx` convive con `PainSlider.test.tsx`). 
+
+## 🚀 Cómo ejecutar los tests
+```bash
+npm run test
 ```
