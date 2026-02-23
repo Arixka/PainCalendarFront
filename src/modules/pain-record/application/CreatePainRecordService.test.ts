@@ -12,6 +12,7 @@ describe('CreatePainRecordService', () => {
 
         const request = {
             intensity: 7,
+            slot: 'MORNING' as const,
             location: 'head',
             date: new Date('2026-02-21'),
         };

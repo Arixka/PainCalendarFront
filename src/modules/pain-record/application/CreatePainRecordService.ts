@@ -1,9 +1,12 @@
 import { createPainRecord, type PainRecord } from '../domain/PainRecord';
 import type { PainRecordRepository } from '../domain/PainRecordRepository';
+import type { Slot } from '../domain/Slot';
 
 export type CreatePainRecordRequest = {
     readonly intensity: number;
-    readonly location: string;
+    readonly slot: Slot;
+    readonly location?: string;
+    readonly notes?: string;
     readonly date: Date;
 };
 
@@ -14,7 +17,9 @@ export const createPainRecordService = (repository: PainRecordRepository) => {
                 id: crypto.randomUUID(),
                 date: request.date,
                 intensity: request.intensity,
+                slot: request.slot,
                 location: request.location,
+                notes: request.notes,
             });
 
             await repository.save(record);
