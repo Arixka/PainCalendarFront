@@ -11,7 +11,7 @@ describe('HttpPainRecordRepository', () => {
     });
 
     it('should send a POST request to the API to save the pain record', async () => {
-        const repository = createHttpPainRecordRepository('http://localhost:8080/api');
+        const repository = createHttpPainRecordRepository('http://localhost:8080/api', '11111111-1111-1111-1111-111111111111');
 
         const dummyRecord = createPainRecord({
             id: '123-abc',

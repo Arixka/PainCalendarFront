@@ -1,11 +1,11 @@
 import type { PainRecord } from '../domain/PainRecord';
 import type { PainRecordRepository } from '../domain/PainRecordRepository';
 
-export const createHttpPainRecordRepository = (baseUrl: string): PainRecordRepository => {
+export const createHttpPainRecordRepository = (baseUrl: string, userId: string): PainRecordRepository => {
     return {
         save: async (record: PainRecord): Promise<void> => {
             const payload = {
-                userId: '11111111-1111-1111-1111-111111111111',
+                userId,
                 date: record.date.toISOString(),
                 slot: record.slot,
                 intensity: record.intensity,
