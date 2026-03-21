@@ -38,7 +38,7 @@ describe('HttpPainRecordRepository', () => {
             },
             body: JSON.stringify({
                 userId: '11111111-1111-1111-1111-111111111111',
-                date: '2026-02-23T10:00:00.000Z',
+                date: '2026-02-23',
                 slot: 'MORNING',
                 intensity: 8,
                 location: 'Head',

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { CreatePainRecordForm } from './CreatePainRecordForm';
@@ -10,9 +10,20 @@ describe('CreatePainRecordForm', () => {
 
         render(<CreatePainRecordForm saveRecord={mockSaveRecord} isPending={false} />);
 
+        const dateInput = screen.getByLabelText(/fecha/i);
+        fireEvent.change(dateInput, { target: { value: '2026-03-21' } });
+
+        const slotSelect = screen.getByLabelText(/momento del día/i);
+        await user.selectOptions(slotSelect, 'EVENING');
+
         const intensityInput = screen.getByLabelText(/intensidad/i);
-        // Simulamos mover el slider a 8
-        vi.spyOn(intensityInput as HTMLInputElement, 'value', 'get').mockReturnValue('8');
+        fireEvent.change(intensityInput, { target: { value: '8' } });
+
+        const locationInput = screen.getByLabelText(/localización/i);
+        await user.type(locationInput, 'Cabeza');
+
+        const noteInput = screen.getByLabelText(/notas/i);
+        await user.type(noteInput, 'Dolor punzante');
 
         const submitButton = screen.getByRole('button', { name: /guardar/i });
         await user.click(submitButton);
@@ -21,8 +32,13 @@ describe('CreatePainRecordForm', () => {
         expect(mockSaveRecord).toHaveBeenCalledWith(
             expect.objectContaining({
                 intensity: 8,
-                slot: 'MORNING',
+                slot: 'EVENING',
+                location: 'Cabeza',
+                notes: 'Dolor punzante'
             })
         );
+        
+        const callArgs = mockSaveRecord.mock.calls[0][0];
+        expect(callArgs.date.toISOString().startsWith('2026-03-21')).toBe(true);
     });
 });

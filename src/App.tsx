@@ -10,7 +10,7 @@ function App() {
   const service = createPainRecordService(repository);
   
   const { isPending, error, saveRecord } = useCreatePainRecord(service, {
-      onSuccess: () => alert('¡Guardado con éxito en la base de datos!')
+      onSuccess: () => console.log('¡Guardado con éxito en la base de datos!')
   });
 
   return (
