@@ -25,7 +25,7 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": ".",
     "paths": {
-      "@modules/*": ["src/modules/*"],
+      "@modules/*": ["src/app/*"],
       "@shared/*": ["src/shared/*"],
       "@/*": ["src/*"]
     }

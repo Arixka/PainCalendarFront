@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { AppShell } from '@/ui/layout/AppShell';
-import { CreatePainRecordForm } from '@/modules/pain-record/ui/CreatePainRecordForm';
-import { PainCalendar } from '@/modules/pain-record/ui/PainCalendar';
-import { useCreatePainRecord } from '@/modules/pain-record/ui/useCreatePainRecord';
-import { createPainRecordService } from '@/modules/pain-record/application/CreatePainRecordService';
-import { createHttpPainRecordRepository } from '@/modules/pain-record/infrastructure/HttpPainRecordRepository';
-import type { PainRecord } from '@/modules/pain-record/domain/PainRecord';
+import { CreatePainRecordForm } from '@/app/pain-record/ui/CreatePainRecordForm';
+import { PainCalendar } from '@/app/pain-record/ui/PainCalendar';
+import { useCreatePainRecord } from '@/app/pain-record/ui/useCreatePainRecord';
+import { createPainRecordService } from '@/app/pain-record/application/CreatePainRecordService';
+import { createHttpPainRecordRepository } from '@/app/pain-record/infrastructure/HttpPainRecordRepository';
+import type { PainRecord } from '@/app/pain-record/domain/PainRecord';
 
 function App() {
   const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';

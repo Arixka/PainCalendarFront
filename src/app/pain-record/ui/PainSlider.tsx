@@ -1,7 +1,7 @@
 import { type CSSProperties } from 'react';
 import { Slider } from '@/ui/components/Slider';
-import { createPainIntensity, type PainIntensity } from '@/modules/pain-record/domain/PainIntensity';
-import { getPainColor, getPainLabel } from '@/modules/pain-record/domain/pain-utils';
+import { createPainIntensity, type PainIntensity } from '@/app/pain-record/domain/PainIntensity';
+import { getPainColor, getPainLabel } from '@/app/pain-record/domain/pain-utils';
 
 type PainSliderProps = {
     readonly value: PainIntensity;
