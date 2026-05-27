@@ -1,3 +1,15 @@
+import type { Slot } from './Slot';
+
+export const getCurrentSlot = (date: Date = new Date()): Slot => {
+    const hour = date.getHours();
+    
+    if (hour >= 6 && hour < 12) return 'MORNING';
+    if (hour >= 12 && hour < 18) return 'AFTERNOON';
+    if (hour >= 18 && hour < 22) return 'EVENING';
+    
+    return 'NIGHT';
+};
+
 export const getPainColor = (intensity: number): string => {
     if (intensity === 0) return "hsl(var(--pain-none))"; // Gris
     if (intensity <= 3) return "hsl(var(--pain-mild))";  // Amarillo
