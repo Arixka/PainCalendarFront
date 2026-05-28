@@ -15,6 +15,7 @@ A diferencia de la mayoría de proyectos modernos en React que mezclan llamadas 
 1. **Domain (Dominio / Reglas de Negocio):**
    - No sabe nada de React, nada de CSS y nada de Internet. 
    - Contiene los tipos (`PainRecord`, `PainIntensity`) y funciones puras para construirlos o validarlos.
+   - **Type Branding (Functional Core)**: Utilizamos marcas sintácticas (ej. `readonly __brand: 'PainIntensity'`) para dotar a los tipos primitivos (como `number`) de *Seguridad Semántica*. Esto evita mezclar lógicamente datos (ej. un 8 de "Dolor" con un 8 de "Horas"), obligando al programador a usar las funciones validadoras (`createPainIntensity()`) para "sellar" la variable antes de usarla. En tiempo de ejecución (JS) la marca se borra, pero en tiempo de compilación garantiza solidez extrema.
    - Si la regla de negocio dicta que el dolor debe estar entre 0 y 10, esa regla vive aquí, y se testea aquí de forma aislada.
 
 2. **Application (Casos de Uso):**

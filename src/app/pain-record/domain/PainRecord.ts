@@ -25,3 +25,5 @@ export const createPainRecord = (props: PainRecordProps): PainRecord => {
         intensity: createPainIntensity(props.intensity),
     };
 };
+
+export type PainRecordSummary = Pick<PainRecord, 'id' | 'date' | 'intensity' | 'location'>;

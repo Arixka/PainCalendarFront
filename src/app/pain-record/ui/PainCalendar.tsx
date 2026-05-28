@@ -1,10 +1,11 @@
 import { useMemo } from "react";
 import { getPainColor } from "../domain/pain-utils";
-import type { PainRecord } from "../domain/PainRecord";
+import type { PainRecordSummary } from "../domain/PainRecord";
 
 export type PainCalendarProps = {
-  records: readonly PainRecord[];
+  records: readonly PainRecordSummary[];
   viewingDate: Date;
+  selectedDate?: Date | null;
   onMonthChange: (newDate: Date) => void;
   onSelectDay: (date: Date) => void;
 };
@@ -22,7 +23,7 @@ const formatDateKey = (date: Date): string => {
   return `${y}-${m}-${d}`;
 };
 
-const getDailyMaxIntensities = (records: readonly PainRecord[]): Map<string, number> => {
+const getDailyMaxIntensities = (records: readonly PainRecordSummary[]): Map<string, number> => {
   const map = new Map<string, number>();
   for (const record of records) {
     const key = formatDateKey(record.date);
@@ -38,6 +39,7 @@ const getDailyMaxIntensities = (records: readonly PainRecord[]): Map<string, num
 export const PainCalendar = ({
   records,
   viewingDate,
+  selectedDate,
   onMonthChange,
   onSelectDay,
 }: PainCalendarProps) => {
@@ -103,15 +105,16 @@ export const PainCalendar = ({
           const hasRecord = intensitiesMap.has(key);
           const intensity = intensitiesMap.get(key) ?? 0;
           const color = getPainColor(hasRecord ? intensity : 0);
+          const isSelected = selectedDate ? formatDateKey(selectedDate) === key : false;
           
           return (
             <button
               key={key}
               onClick={() => onSelectDay(date)}
-              className="aspect-square rounded-lg flex items-center justify-center text-sm font-medium transition-all hover:scale-110 relative cursor-pointer outline-none"
+              className={`aspect-square rounded-lg flex items-center justify-center text-sm font-medium transition-all hover:scale-110 relative cursor-pointer outline-none ${isSelected ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}
               style={{ backgroundColor: color }}
             >
-              <span className={intensity > 6 ? "text-white" : hasRecord && intensity > 0 ? "text-black" : "text-zinc-400"}>
+              <span className={intensity > 6 ? "text-white" : hasRecord && intensity > 0 ? "text-black" : "text-muted-foreground"}>
                 {date.getDate()}
               </span>
             </button>

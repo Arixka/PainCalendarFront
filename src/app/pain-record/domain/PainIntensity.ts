@@ -1,4 +1,4 @@
-export type PainIntensity = number & { readonly __brand: unique symbol };
+export type PainIntensity = number & { readonly __brand: 'PainIntensity' };
 
 export const createPainIntensity = (value: number): PainIntensity => {
     if (!Number.isInteger(value) || value < 0 || value > 10) {

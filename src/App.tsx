@@ -1,40 +1,53 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppShell } from '@/ui/layout/AppShell';
 import { CreatePainRecordForm } from '@/app/pain-record/ui/CreatePainRecordForm';
 import { PainCalendar } from '@/app/pain-record/ui/PainCalendar';
 import { DayCard } from '@/app/pain-record/ui/DayCard';
 import { useCreatePainRecord } from '@/app/pain-record/ui/useCreatePainRecord';
 import { createPainRecordService } from '@/app/pain-record/application/CreatePainRecordService';
+import { createGetMonthlyPainRecordsService } from '@/app/pain-record/application/GetMonthlyPainRecordsService';
 import { createHttpPainRecordRepository } from '@/app/pain-record/infrastructure/HttpPainRecordRepository';
+import { useGetPainRecords } from '@/app/pain-record/ui/useGetPainRecords';
 import type { PainRecord } from '@/app/pain-record/domain/PainRecord';
 
 function App() {
   const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
   const repository = createHttpPainRecordRepository(backendUrl, '11111111-1111-1111-1111-111111111111');
   const service = createPainRecordService(repository);
+  const getRecordsService = createGetMonthlyPainRecordsService(repository);
   
+  const [viewingDate, setViewingDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+  // Hook de lectura (GET)
+  const { records, refetch } = useGetPainRecords(
+      getRecordsService, 
+      viewingDate.getFullYear(), 
+      viewingDate.getMonth() + 1 // JS usa meses 0-11, Java 1-12
+  );
+
   const { isPending, error, saveRecord } = useCreatePainRecord(service, {
       onSuccess: () => {
           console.log('¡Guardado con éxito en la base de datos!');
           setSelectedDate(null);
+          refetch(); // Recargamos el calendario automáticamente
       }
   });
 
-  const [viewingDate, setViewingDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  // UX Proactiva: Abrimos la app pidiendo el dolor del día de hoy (solo la primera vez al día)
+  useEffect(() => {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const lastPrompt = localStorage.getItem('lastPromptDate');
+      
+      if (lastPrompt !== todayStr) {
+          setSelectedDate(new Date());
+          localStorage.setItem('lastPromptDate', todayStr);
+      }
+  }, []);
 
-  const mockRecords: PainRecord[] = [
-    {
-       id: '1', date: new Date(), slot: 'MORNING', intensity: 8 as any 
-    },
-    {
-       id: '2', date: new Date(new Date().setDate(new Date().getDate() - 2)), slot: 'AFTERNOON', intensity: 3 as any 
-    }
-  ];
-
-  // Buscamos el registro que corresponda al día seleccionado para editarlo
+  // Buscamos el registro que corresponda al día seleccionado para editarlo (si es que existe)
   const selectedRecord = selectedDate 
-    ? mockRecords.find(r => r.date.getFullYear() === selectedDate.getFullYear() && r.date.getMonth() === selectedDate.getMonth() && r.date.getDate() === selectedDate.getDate()) 
+    ? records.find(r => r.date.getFullYear() === selectedDate.getFullYear() && r.date.getMonth() === selectedDate.getMonth() && r.date.getDate() === selectedDate.getDate()) 
     : undefined;
 
   return (
@@ -46,8 +59,9 @@ function App() {
 
       <section className="flex items-start justify-center">
           <PainCalendar 
-              records={mockRecords}
+              records={records}
               viewingDate={viewingDate}
+              selectedDate={selectedDate} // Pasamos el día seleccionado para destacarlo
               onMonthChange={setViewingDate}
               onSelectDay={(date) => setSelectedDate(date)}
           />

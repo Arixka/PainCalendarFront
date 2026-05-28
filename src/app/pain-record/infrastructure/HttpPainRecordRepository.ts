@@ -1,5 +1,6 @@
-import type { PainRecord } from '../domain/PainRecord';
+import type { PainRecord, PainRecordSummary } from '../domain/PainRecord';
 import type { PainRecordRepository } from '../domain/PainRecordRepository';
+import { createPainIntensity } from '../domain/PainIntensity';
 
 export const createHttpPainRecordRepository = (baseUrl: string, userId: string): PainRecordRepository => {
     return {
@@ -24,6 +25,28 @@ export const createHttpPainRecordRepository = (baseUrl: string, userId: string):
             if (!response.ok) {
                 throw new Error(`Failed to save pain record: ${response.status}`);
             }
+        },
+        getByMonth: async (year: number, month: number): Promise<PainRecordSummary[]> => {
+            const response = await fetch(`${baseUrl}/pain-records?userId=${userId}&year=${year}&month=${month}`);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch pain records: ${response.status}`);
+            }
+            
+            type PainRecordResponse = {
+                id: string;
+                date: string;
+                intensity: number;
+                location: string | null;
+            };
+
+            const data = (await response.json()) as PainRecordResponse[];
+            
+            return data.map((item) => ({
+                id: item.id,
+                date: new Date(item.date),
+                intensity: createPainIntensity(item.intensity),
+                location: item.location ?? ""
+            }));
         }
     };
 };
