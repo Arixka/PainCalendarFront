@@ -15,10 +15,8 @@ type Props = {
 type FormStep = 'CONFIRMATION' | 'DETAILS';
 
 export const CreatePainRecordForm = ({ saveRecord, isPending, initialData, selectedDate, onCancel }: Props) => {
-    // Si ya hay initialData (está editando), saltamos directo a los detalles
     const [step, setStep] = useState<FormStep>(initialData ? 'DETAILS' : 'CONFIRMATION');
 
-    // Estado del formulario
     const [intensityValue, setIntensityValue] = useState<number>(initialData ? (initialData.intensity as unknown as number) : 1);
     const [slotValue, setSlotValue] = useState<Slot>((initialData && 'slot' in initialData) ? initialData.slot : getCurrentSlot(new Date()));
     const [locationValue, setLocationValue] = useState<string>(initialData?.location || "");

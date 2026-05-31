@@ -7,7 +7,7 @@ export const createHttpPainRecordRepository = (baseUrl: string, userId: string):
         save: async (record: PainRecord): Promise<void> => {
             const payload = {
                 userId,
-                date: record.date.toISOString().split('T')[0], // Adaptación a LocalDate de Java
+                date: record.date.toISOString().split('T')[0],
                 slot: record.slot,
                 intensity: record.intensity,
                 location: record.location,

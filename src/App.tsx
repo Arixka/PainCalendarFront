@@ -19,22 +19,21 @@ function App() {
   const [viewingDate, setViewingDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-  // Hook de lectura (GET)
+
   const { records, refetch } = useGetPainRecords(
       getRecordsService, 
       viewingDate.getFullYear(), 
-      viewingDate.getMonth() + 1 // JS usa meses 0-11, Java 1-12
+      viewingDate.getMonth() + 1
   );
 
   const { isPending, error, saveRecord } = useCreatePainRecord(service, {
       onSuccess: () => {
           console.log('¡Guardado con éxito en la base de datos!');
           setSelectedDate(null);
-          refetch(); // Recargamos el calendario automáticamente
+          refetch();
       }
   });
 
-  // UX Proactiva: Abrimos la app pidiendo el dolor del día de hoy (solo la primera vez al día)
   useEffect(() => {
       const todayStr = new Date().toISOString().split('T')[0];
       const lastPrompt = localStorage.getItem('lastPromptDate');
@@ -45,7 +44,6 @@ function App() {
       }
   }, []);
 
-  // Buscamos el registro que corresponda al día seleccionado para editarlo (si es que existe)
   const selectedRecord = selectedDate 
     ? records.find(r => r.date.getFullYear() === selectedDate.getFullYear() && r.date.getMonth() === selectedDate.getMonth() && r.date.getDate() === selectedDate.getDate()) 
     : undefined;
@@ -61,7 +59,7 @@ function App() {
           <PainCalendar 
               records={records}
               viewingDate={viewingDate}
-              selectedDate={selectedDate} // Pasamos el día seleccionado para destacarlo
+              selectedDate={selectedDate}
               onMonthChange={setViewingDate}
               onSelectDay={(date) => setSelectedDate(date)}
           />

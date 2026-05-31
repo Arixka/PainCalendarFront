@@ -40,4 +40,27 @@ describe('CreatePainRecordForm', () => {
             })
         );
     });
+
+    it('debería inicializarse en el paso DETAILS y mostrar los datos cuando recibe initialData', () => {
+        const mockSaveRecord = vi.fn();
+        const testDate = new Date('2026-03-21T12:00:00Z');
+        
+        const mockInitialData = {
+            id: '1234-abcd',
+            date: testDate,
+            intensity: 7 as any,
+            location: 'Cuello',
+            slot: 'AFTERNOON' as const
+        };
+
+        render(<CreatePainRecordForm saveRecord={mockSaveRecord} isPending={false} selectedDate={testDate} initialData={mockInitialData} />);
+
+        expect(screen.queryByRole('button', { name: /sí, registrar dolor/i })).toBeNull();
+
+        const submitButton = screen.getByRole('button', { name: /actualizar registro/i });
+        expect(submitButton).toBeDefined();
+
+        const slotSelect = screen.getByLabelText(/en qué momento/i) as HTMLSelectElement;
+        expect(slotSelect.value).toBe('AFTERNOON');
+    });
 });
