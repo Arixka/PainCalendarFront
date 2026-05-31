@@ -79,3 +79,51 @@ Los archivos de test no están escondidos en una carpeta `/tests` global. Se ubi
 ```bash
 npm run test
 ```
+
+---
+
+## Flujo real de dependencias del Frontend
+
+Hoy el frontend ya no depende de un `userId` fijo ni mezcla la composición técnica dentro de la UI. La aplicación se ensambla así:
+
+```text
+App.tsx
+  -> config.apiBaseUrl
+  -> CurrentUserIdProvider
+    -> browserCurrentUserIdProvider
+      -> localStorage
+  -> createPainRecordDependencies(apiBaseUrl, currentUserId)
+    -> HttpPainRecordRepository
+      -> CreatePainRecordService
+      -> UpdatePainRecordService
+      -> GetPainRecordByIdService
+      -> GetMonthlyPainRecordsService
+        -> Backend API
+```
+
+### Qué significa este diagrama
+
+- `App.tsx` actúa como composition root del frontend.
+- `CurrentUserIdProvider` es una abstracción de identidad: la UI no sabe si el usuario actual viene de `localStorage`, de un JWT o de un futuro microservicio de autenticación.
+- `browserCurrentUserIdProvider` es solo el adaptador temporal actual para desarrollo.
+- `createPainRecordDependencies(...)` centraliza el ensamblado de servicios y repositorio.
+- `HttpPainRecordRepository` traduce dominio `<->` contrato HTTP y encapsula el acceso al backend.
+
+### Por qué esto importa
+
+- Si mañana sustituimos la identidad temporal por login real, el cambio debería concentrarse en el proveedor de identidad y en la composición.
+- Si mañana cambiamos el backend o el contrato HTTP, el impacto debería quedar confinado al adaptador HTTP y sus DTOs.
+- La UI sigue enfocada en intención de usuario y estado de pantalla, no en infraestructura.
+
+---
+
+## Estado actual del flujo funcional
+
+El agregado `pain-record` del frontend ya trabaja con casos de uso explícitos:
+
+- `CreatePainRecordService` para alta de registros.
+- `UpdatePainRecordService` para edición real.
+- `GetPainRecordByIdService` para cargar detalle completo antes de editar.
+- `GetMonthlyPainRecordsService` para pintar el calendario mensual.
+
+Esto evita la falsa edición que existía antes, donde la UI aparentaba actualizar pero internamente creaba un registro nuevo.
