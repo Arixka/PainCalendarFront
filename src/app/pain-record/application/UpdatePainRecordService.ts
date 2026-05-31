@@ -2,7 +2,8 @@ import { createPainRecord, type PainRecord } from '../domain/PainRecord';
 import type { PainRecordRepository } from '../domain/PainRecordRepository';
 import type { Slot } from '../domain/Slot';
 
-export type CreatePainRecordRequest = {
+export type UpdatePainRecordRequest = {
+    readonly id: string;
     readonly intensity: number;
     readonly slot: Slot;
     readonly location?: string;
@@ -10,11 +11,11 @@ export type CreatePainRecordRequest = {
     readonly date: Date;
 };
 
-export const createPainRecordService = (repository: PainRecordRepository) => {
+export const createUpdatePainRecordService = (repository: PainRecordRepository) => {
     return {
-        execute: async (request: CreatePainRecordRequest): Promise<PainRecord> => {
+        execute: async (request: UpdatePainRecordRequest): Promise<PainRecord> => {
             const record = createPainRecord({
-                id: crypto.randomUUID(),
+                id: request.id,
                 date: request.date,
                 intensity: request.intensity,
                 slot: request.slot,
@@ -22,7 +23,7 @@ export const createPainRecordService = (repository: PainRecordRepository) => {
                 notes: request.notes,
             });
 
-            await repository.create(record);
+            await repository.update(record);
 
             return record;
         }

@@ -7,6 +7,7 @@ describe('PainRecord Entity', () => {
         const validData = {
             id: '123-uuid',
             date: new Date(),
+            slot: 'MORNING' as const,
             intensity: 5,
             location: 'cabeza',
         };

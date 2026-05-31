@@ -5,7 +5,10 @@ import type { PainRecordRepository } from '../domain/PainRecordRepository';
 describe('CreatePainRecordService', () => {
     it('should create a valid pain record and save it to the repository', async () => {
         const mockRepository: PainRecordRepository = {
-            save: vi.fn().mockResolvedValue(undefined),
+            create: vi.fn().mockResolvedValue(undefined),
+            update: vi.fn(),
+            getById: vi.fn(),
+            getByMonth: vi.fn(),
         };
 
         const service = createPainRecordService(mockRepository);
@@ -20,7 +23,7 @@ describe('CreatePainRecordService', () => {
         const result = await service.execute(request);
 
         expect(result.intensity).toBe(7);
-        expect(mockRepository.save).toHaveBeenCalledTimes(1);
-        expect(mockRepository.save).toHaveBeenCalledWith(result);
+        expect(mockRepository.create).toHaveBeenCalledTimes(1);
+        expect(mockRepository.create).toHaveBeenCalledWith(result);
     });
 });

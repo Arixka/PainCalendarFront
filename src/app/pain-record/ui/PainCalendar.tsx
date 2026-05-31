@@ -61,8 +61,6 @@ export const PainCalendar = ({
   const prevMonth = () => onMonthChange(new Date(year, month - 1, 1));
   const nextMonth = () => onMonthChange(new Date(year, month + 1, 1));
 
-  const todayKey = formatDateKey(new Date());
-  
   const intensitiesMap = useMemo(() => getDailyMaxIntensities(records), [records]);
 
   return (

@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import type { CreatePainRecordRequest } from '../application/CreatePainRecordService';
+import type { SavePainRecordRequest } from './useSavePainRecord';
 import type { Slot } from '../domain/Slot';
-import type { PainRecord, PainRecordSummary } from '../domain/PainRecord';
+import type { PainRecord } from '../domain/PainRecord';
 import { getCurrentSlot } from '../domain/pain-utils';
 
 type Props = {
-    saveRecord: (request: CreatePainRecordRequest) => void;
+    saveRecord: (request: SavePainRecordRequest) => void;
     isPending: boolean;
-    initialData?: PainRecord | PainRecordSummary;
+    initialData?: PainRecord;
     selectedDate?: Date;
     onCancel?: () => void;
 };
@@ -18,15 +18,16 @@ export const CreatePainRecordForm = ({ saveRecord, isPending, initialData, selec
     const [step, setStep] = useState<FormStep>(initialData ? 'DETAILS' : 'CONFIRMATION');
 
     const [intensityValue, setIntensityValue] = useState<number>(initialData ? (initialData.intensity as unknown as number) : 1);
-    const [slotValue, setSlotValue] = useState<Slot>((initialData && 'slot' in initialData) ? initialData.slot : getCurrentSlot(new Date()));
+    const [slotValue, setSlotValue] = useState<Slot>(initialData?.slot ?? getCurrentSlot(new Date()));
     const [locationValue, setLocationValue] = useState<string>(initialData?.location || "");
-    const [noteValue, setNoteValue] = useState<string>((initialData && 'notes' in initialData) ? initialData.notes || "" : "");
+    const [noteValue, setNoteValue] = useState<string>(initialData?.notes || "");
 
     const handleSubmitDetails = (e: React.FormEvent) => {
         e.preventDefault();
         const finalDate = selectedDate || (initialData?.date) || new Date();
         
         saveRecord({
+            ...(initialData ? { id: initialData.id } : {}),
             intensity: intensityValue,
             slot: slotValue,
             date: finalDate,
